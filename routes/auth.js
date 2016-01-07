@@ -4,8 +4,6 @@ var router = express.Router();
 var api = require('instagram-node').instagram();
 var moment = require('moment');
 
-var tmp_access_token;
-
 api.use({
   client_id: '7d36b8506e3241ebbd811a1650f40a41',
   client_secret: '2f0bfc8b7e1848f3a715c78672ed8132'
@@ -20,7 +18,7 @@ router.get('/', function(req, res, next) {
 });
 
 router.use(function(req, res, next) {
-  if (tmp_access_token == null && req.path != '/auth' && req.path != '/r') {
+  if (req.session.token == null && req.path != '/auth' && req.path != '/r') {
     res.redirect('/auth?t=' + encodeURIComponent(req.originalUrl));
   } else {
     next();
@@ -43,7 +41,7 @@ router.get('/r', function(req, res) {
       res.send('error >:(');
     } else {
       console.log('yay! welcome ' + result.user.username + ' access_token: ' + result.access_token);
-      tmp_access_token = result.access_token;
+      req.session.token = result.access_token;
 
       if (req.query.state != null) {
         res.redirect(decodeURIComponent(req.query.state));
@@ -56,7 +54,7 @@ router.get('/r', function(req, res) {
 
 router.get('/media', function(req, res) {
   api.use({
-    access_token: tmp_access_token
+    access_token: req.session.token
   });
 
   var n_medias = 10;
@@ -76,7 +74,7 @@ router.get('/media', function(req, res) {
 
 router.get('/moment', function(req, res) {
   api.use({
-    access_token: tmp_access_token
+    access_token: req.session.token
   });
 
   var from_ts = moment(0, 'HH');
