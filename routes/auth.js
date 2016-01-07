@@ -13,6 +13,12 @@ api.use({
 
 var redirect_uri = 'http://h120n8-sto-a12.ias.bredband.telia.com:10001/r';
 
+router.get('/', function(req, res, next) {
+  res.render('index', {
+    title: 'Welcome!'
+  });
+});
+
 router.use(function(req, res, next) {
   if (tmp_access_token == null && req.path != '/auth' && req.path != '/r') {
     res.redirect('/auth?t=' + encodeURIComponent(req.originalUrl));

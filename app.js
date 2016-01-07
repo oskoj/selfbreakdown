@@ -5,6 +5,17 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
+var url = 'mongodb://localhost:27017/selfbreakdown';
+var db;
+
+MongoClient.connect(url, function(err, conn) {
+  assert.equal(null, err);
+  console.log("Connected correctly to server.");
+  db = conn;
+});
+
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var auth = require('./routes/auth');
@@ -24,6 +35,11 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(function(req, res, next) {
+  req.db = db;
+  next();
+});
 
 app.use('/xyz', routes);
 app.use('/users', users);
